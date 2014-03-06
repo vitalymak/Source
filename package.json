@@ -22,6 +22,9 @@
     "grunt-contrib-cssmin": "~0.6.2",
     "grunt-sftp-deploy": "0.0.9",
     "grunt-contrib-less": "~0.7.0",
+    "grunt-newer": "~0.6.1",
+    "time-grunt": "~0.2.9",
+    "load-grunt-tasks": "~0.3.0",
     "css": "~1.6.0",
     "exec-sync": "~0.1.6"
   },
