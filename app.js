@@ -10,6 +10,7 @@ var express = require('express')
     , fs = require('fs')
     , ejs = require('ejs')
     , deepExtend = require('deep-extend')
+    , commander = require('commander')
     , headerFooter = require('./core/headerFooter');
 
 /* Globals */
@@ -21,6 +22,13 @@ global.app.set('specs path', __dirname + '/' + global.opts.common.pathToSpecs);
 
 global.MODE = process.env.NODE_ENV || 'development';
 /* /Globals */
+
+
+/* Args */
+commander
+  .option('-p, --port [number]', 'Server port (default: '+global.opts.common.port+')', global.opts.common.port)
+  .parse(process.argv);
+/* Args */
 
 
 /* Optimization */
@@ -135,6 +143,9 @@ global.app.use(function(req, res, next){
 
 if (!module.parent) {
     var port = global.opts.common.port;
+    if (commander.port) {
+      port = parseInt(commander.port);
+    }
 
     global.app.listen(port);
 
