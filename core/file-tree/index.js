@@ -23,6 +23,10 @@ var CRON = global.opts.core.fileTree.cron;
 var CRON_PROD = global.opts.core.fileTree.cronProd;
 var CRON_REPEAT_TIME = global.opts.core.fileTree.cronRepeatTime;
 
+// versioning variables
+var versionDelimiter = global.opts.core.fileTree.versionDelimiter || "--";
+var versioningRegEx = new RegExp("^([a-zA-Z-]+)" + versionDelimiter  + "([\\w]+)"); //returns [dirToCheck, <component>, <version>];
+
 // formatting RegExp for parser
 var dirsForRegExp = '';
 var i = 1;
@@ -48,6 +52,17 @@ var isSpec = function(file) {
     return response;
 };
 
+// we are to check both pattern matching for directory and component name matching
+var isVersionDirectory = function (path) {
+    var pathParts = path.split("/");
+    var dirToCheck = pathParts.pop();
+    var componentDir = pathParts.pop();
+    if (!dirToCheck || !dirToCheck.length || !componentDir || !componentDir.length) {
+        return false;
+    }
+    var regExpResult = versioningRegEx.exec(dirToCheck);
+    return regExpResult && regExpResult[1] && regExpResult[1] === componentDir;
+};
 
 var fileTree = function(dir) {
     var outputJSON = {},
@@ -84,9 +99,30 @@ var fileTree = function(dir) {
 
         if (fileStats.isDirectory()) {
 
-            var childObj = fileTree(urlToFile);
-            if (Object.getOwnPropertyNames(childObj).length !== 0) {
-                outputJSON[targetFile] = extend(outputJSON[targetFile],childObj);
+            if (isVersionDirectory(urlToFile)) {
+                var regExResult = versioningRegEx.exec(targetFile);
+
+                var currentVersion = {};
+                var versionName = regExResult !== null && regExResult[2] ? regExResult[2] : targetFile;
+                // If starts with root
+                if (urlFromHostRoot.lastIndexOf(sourceRoot, 0) === 0) {
+                    // Clean of from path
+                    var url = urlFromHostRoot.replace(sourceRoot, '').split('/');
+                } else {
+                    // Making path absolute
+                    var url = ('/' + urlFromHostRoot).split('/');
+                }
+                url.pop();
+                url.push(targetFile);
+                currentVersion[versionName] = url.join('/');
+
+                outputJSON['specFile'] = outputJSON['specFile'] || {};
+                outputJSON.specFile["versions"] = extend(outputJSON.specFile["versions"], currentVersion, {});
+            } else {
+                var childObj = fileTree(urlToFile);
+                if (Object.getOwnPropertyNames(childObj).length !== 0) {
+                    outputJSON[targetFile] = extend(outputJSON[targetFile],childObj);
+                }
             }
 
         } else if (isSpec(targetFile)) {
@@ -122,7 +158,7 @@ var fileTree = function(dir) {
                 page.thumbnail = true;
             }
 
-            outputJSON['specFile'] = extend(page);
+            outputJSON['specFile'] = extend(page, outputJSON['specFile']);
         }
     });
 
