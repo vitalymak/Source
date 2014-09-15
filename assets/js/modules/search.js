@@ -50,21 +50,21 @@ Search.prototype.prepareAutoCompleteData = function() {
 
     this.data = [];
 
-    var pagesData = parseFileTree.getAllPages();
+    var sort = JSON.parse(localStorage.getItem("source_enabledFilter")) || {"sortDirection": "forward", "sortType": "sortByAlph"};
+    var pagesData = parseFileTree.getSortedCatalogsArray("", globalNav.getSortCondition(sort.sortType, sort.sortDirection));
+
 
     for (var page in pagesData) {
         if (pagesData.hasOwnProperty(page)) {
             var targetPage = pagesData[page]['specFile'];
-
             var keywords = targetPage.keywords;
-            var keywordsPageName = page; //get cat name
+            var keywordsPageName = pagesData[page]['name']; //get cat name
             var prepareKeywords = '';
             var rootFolder = page.split('/');
             var autocompleteValue = targetPage.title;
+            var pclass = targetPage.pclass;
             var searchOptions = this.options.modulesOptions.search;
             var json = parseFileTree.getParsedJSON();
-
-
             var isRootSpecExists = json[rootFolder[ 1 ]] && json[rootFolder[ 1 ]]['specFile'];
 
             if (isRootSpecExists && searchOptions.replacePathBySectionName) {
@@ -84,9 +84,9 @@ Search.prototype.prepareAutoCompleteData = function() {
 Search.prototype.wrapSearchResults = function(results) {
     var modulesOptions = this.options.modulesOptions;
     var classes = [
-        modulesOptions.globalNav.CATALOG_LIST,
+        modulesOptions.globalNav.classes.catalogList,
         modulesOptions.search.classes.searchResult,
-        modulesOptions.globalNav.CATALOG
+        modulesOptions.globalNav.classes.catalog
     ];
     if (modulesOptions.globalNav.showPreviews) {
         classes.push("__show-preview");
@@ -95,7 +95,7 @@ Search.prototype.wrapSearchResults = function(results) {
     $.map(results, function(item) {
         var specItem = parseFileTree.getCatAll(item.data).specFile;
         specItem.title = item.value;
-        list.append(globalNav.createNavTreeItem(specItem));
+        list.append(globalNav.renderNavTreeItem(specItem));
     });
     return list;
 };
