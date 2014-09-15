@@ -61,7 +61,7 @@ define([
      * It implements module initialization.
      */
 
-    function GlobalNav() {
+    var GlobalNav = function() {
         var _this = this;
         this.options.modulesOptions.globalNav = $.extend(true, defaults,
             this.options.modulesOptions.globalNav,
@@ -204,8 +204,8 @@ define([
         var navOptions = this.options.modulesOptions.globalNav;
         var classes = navOptions.classes;
         var labels = navOptions.labels;
-        var sortType = sortType || navOptions.sortType;
-        var sortDirection = sortDirection || navOptions.sortDirection;
+        sortType = sortType || navOptions.sortType;
+        sortDirection = sortDirection || navOptions.sortDirection;
 
         this.catalog.each(function () {
             var catalog = $(this);
@@ -329,7 +329,7 @@ define([
         }
         result.find("." + classes.catalogListTitle).html(itemData.title);
         result.find("." + classes.catalogListDate).html(itemData.lastmod + author);
-        if(parseInt(itemData.bubbles)) {
+        if(parseInt(itemData.bubbles, 10)) {
             result.find("." + classes.catalogListBubbles).html(itemData.bubbles);
         }
         return result;
@@ -375,7 +375,7 @@ define([
         var $filter = $("." + classes.catalogFilter);
         var catalog = this.catalog;
 
-        if (initPreviewValue == "true") { // initPreviewValue is string, not boolean
+        if (initPreviewValue === "true") { // initPreviewValue is string, not boolean
             catalog.addClass(classes.showPreview);
             $filter.append(this.templates.togglePreviewLink({"classes": classes, "togglePreviewLabel": labels.hidePreview}));
         } else {
@@ -388,7 +388,7 @@ define([
             var $this = $(this);
             var previewText;
 
-            if (showPreviews == "true") { // string
+            if (showPreviews === "true") { // string
                 previewText = labels.showPreview;
                 localStorage.setItem("source_showPreviews" , false);
             } else {
@@ -416,7 +416,7 @@ define([
         var $activeFilter = $("#" + enabledFilter.sortType);
         $activeFilter.parent().addClass("__active");
 
-        if (enabledFilter.sortDirection == "forward") {
+        if (enabledFilter.sortDirection === "forward") {
             $activeFilter.parent().addClass("__forward");
         }
 
@@ -437,8 +437,9 @@ define([
             enabledFilter.sortType = sortType;
             enabledFilter.sortDirection = sortDirection;
             localStorage.setItem("source_enabledFilter", JSON.stringify(enabledFilter));
-            _this.renderNavigation(sortType, sortDirection)
-        }
+            _this.renderNavigation(sortType, sortDirection);
+        };
+
         $(document).on("click", ".source_sort-list_a", function() {
             updateView($(this));
         });
@@ -466,8 +467,8 @@ define([
         }
         // type === "sortByDate", this is default one
         return function sortByDate(a, b) {
-            a = parseInt(a["specFile"].lastmodSec);
-            b = parseInt(b["specFile"].lastmodSec);
+            a = parseInt(a["specFile"].lastmodSec, 10);
+            b = parseInt(b["specFile"].lastmodSec, 10);
             if(a === b) return 0;
             return multiplexer * ((a > b) ? -1 : 1);
         };

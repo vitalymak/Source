@@ -62,7 +62,6 @@ Search.prototype.prepareAutoCompleteData = function() {
             var prepareKeywords = '';
             var rootFolder = page.split('/');
             var autocompleteValue = targetPage.title;
-            var pclass = targetPage.pclass;
             var searchOptions = this.options.modulesOptions.search;
             var json = parseFileTree.getParsedJSON();
             var isRootSpecExists = json[rootFolder[ 1 ]] && json[rootFolder[ 1 ]]['specFile'];

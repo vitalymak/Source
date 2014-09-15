@@ -18,7 +18,7 @@ define([
 
 'use strict';
 
-    function ParseFileTree() {
+    var ParseFileTree = function() {
         this.json = $.parseJSON(data.toString());
     };
 
